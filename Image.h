@@ -8,13 +8,17 @@
 
 class Image
 {
+friend class Iterator;
 private:
 	int width, height;
 	std::unique_ptr<unsigned char[]> data;
 	std::string inputname;
+	std::string outputname;
+	std::string topl;
+
 public:
 	Image();
-	Image(std::string filename);
+	Image(std::string filename, std::string outputname);
 	Image(const Image & rhs);
 	Image(Image && rhs);
 	~Image();
@@ -22,6 +26,7 @@ public:
 	void load();
 	void save();
 	bool checkSizes(Image b);
+	unsigned char * getContents();
 
 	Image & operator = (const Image & rhs);
 	Image & operator = (Image && rhs);
@@ -32,15 +37,16 @@ public:
 
 	class Iterator
 	{
+	friend class Image;
 	private:
 		unsigned char * ptr;
-		int size;
 
 		Iterator(unsigned char * p): ptr(p)
 		{}
 
+
 	public:
-		Iterator (const Iterator & rhs): ptr(rhs.ptr), size(rhs.size)
+		Iterator (const Iterator & rhs): ptr(rhs.ptr)
 		{}
 		~Iterator ()
 		{}
@@ -48,6 +54,15 @@ public:
 		Iterator & operator = (const Iterator & rhs)
 		{
 			ptr = rhs.ptr;
+			return *this;
+		}
+
+		Iterator(Iterator && rhs): ptr(std::move(rhs.ptr))
+		{}
+
+		Iterator & operator = (Iterator && rhs)
+		{
+			ptr = std::move(rhs.ptr);
 			return *this;
 		}
 
@@ -81,9 +96,16 @@ public:
 			return *ptr;
 		}
 
-		void setSize(int i)
+		bool operator != (Iterator rhs)
 		{
-			size = i;
+			if (ptr == rhs.ptr)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
 		}
 
 		unsigned char * begin()
@@ -91,19 +113,19 @@ public:
 			return ptr;
 		}
 
-		unsigned char * end()
+		unsigned char * end(int size)
 		{
-			return ptr + size;
+			ptr = ptr + size;
+			return ptr;
 		}
-
-
-
-
 	};
 
-
+	Iterator begin();
+	Iterator end();
 
 };
+
+
 
 
 #endif
