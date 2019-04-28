@@ -6,6 +6,7 @@ using namespace std;
 int main (int argc, char*argv[])
 {
 	string command = argv[1];
+	cout << "command: " << command << "\n";
 
 	if (command == "-a")
 	{
@@ -14,7 +15,8 @@ int main (int argc, char*argv[])
 		string outputname = argv[4];
 		Image image1(i1, outputname);
 		Image image2(i2, outputname);
-		//image1 = image1 + image2;
+		image1 = image1 + image2;
+		image1.save();
 	}
 	else if (command == "-s")
 	{
@@ -24,7 +26,8 @@ int main (int argc, char*argv[])
 		string outputname = argv[4];
 		Image image1(i1, outputname);
 		Image image2(i2, outputname);
-		//image1 = image1 - image2;
+		image1 = image1 - image2;
+		image1.save();
 	}
 	else if (command == "-i")
 	{

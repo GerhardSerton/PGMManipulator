@@ -31,6 +31,7 @@ public:
 	Image & operator = (const Image & rhs);
 	Image & operator = (Image && rhs);
 	Image operator + (Image rhs);
+	Image operator - (Image rhs);
 	Image operator ! ();
 	Image operator / (Image rhs);
 	Image operator * (int rhs);
@@ -65,7 +66,6 @@ public:
 			ptr = std::move(rhs.ptr);
 			return *this;
 		}
-
 		Iterator operator ++ ()
 		{
 			++ptr;
@@ -91,7 +91,7 @@ public:
 			operator--();
 			return temp;
 		}
-		unsigned char operator * ()
+		unsigned char & operator * () const
 		{
 			return *ptr;
 		}
@@ -120,8 +120,8 @@ public:
 		}
 	};
 
-	Iterator begin();
-	Iterator end();
+	Iterator begin() const;
+	Iterator end() const;
 
 };
 

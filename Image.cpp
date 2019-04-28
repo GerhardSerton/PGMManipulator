@@ -1,4 +1,5 @@
 #include "Image.h"
+#include <vector>
 
 Image::Image()
 {
@@ -10,17 +11,24 @@ Image::Image(std::string filename, std::string outputname): inputname(filename),
 	load();
 }
 
-Image::Image(const Image & rhs): inputname(rhs.inputname), outputname(rhs.outputname), width(rhs.width), height(rhs.height)
+Image::Image(const Image & rhs): inputname(rhs.inputname), outputname(rhs.outputname), width(rhs.width), height(rhs.height), topl(rhs.topl)
 {
-	for (int i = 0; i < (width*height); i++)
+
+	std::unique_ptr<unsigned char[]> temp (new unsigned char[rhs.height * rhs.width]);
+	int no = 0;
+	for (auto i = rhs.begin(); i != rhs.end(); ++i)
 	{
-			data[i] = rhs.data[i];
+		temp[no] = *i;
+		++no;
 	}
+
+	data = std::move(temp);
+
 }
 
-Image::Image(Image && rhs)
+Image::Image(Image && rhs): inputname(std::move(rhs.inputname)), outputname(std::move(rhs.outputname)), width(std::move(rhs.width)), height(std::move(rhs.height)), topl(std::move(rhs.topl))
 {
-
+	data = std::move(rhs.data);
 }
 
 Image::~Image()
@@ -75,6 +83,7 @@ void Image::load()
 
 void Image::save()
 {
+		std::cout << "Outputting to: " << outputname << "\n";
 		std::ofstream saveFile (outputname, std::ios::out | std::ios::binary);
 
 		saveFile << topl << "\n";
@@ -105,17 +114,101 @@ unsigned char * Image::getContents()
 
 Image & Image::operator = (const Image & rhs)
 {
+		width = rhs.width;
+		height = rhs.height;
+		inputname = rhs.inputname;
+		outputname = rhs.outputname;
+		topl = rhs.topl;
 
+		std::unique_ptr<unsigned char[]> temp (new unsigned char[rhs.height * rhs.width]);
+		int no = 0;
+		for (auto i = rhs.begin(); i != rhs.end(); ++i)
+		{
+			temp[no] = *i;
+			++no;
+		}
+
+		data = std::move(temp);
+		return *this;
 }
 
 Image & Image::operator = (Image && rhs)
 {
+	width = std::move(rhs.width);
+	height = std::move(rhs.height);
+	inputname = std::move(rhs.inputname);
+	outputname = std::move(rhs.outputname);
+	topl = std::move(rhs.topl);
+
+	data = std::move(rhs.data);
+	return *this;
 
 }
 
 Image Image::operator + (Image rhs)
 {
+	if (checkSizes(rhs))
+	{
+		Image temp(*this);
+		std::unique_ptr<unsigned char[]> tempchar (new unsigned char[rhs.height * rhs.width]);
+		auto tempi = temp.begin();
+		auto rhsi = rhs.begin();
+		int count = 0;
+		while (tempi != temp.end())
+		{
+			int sum = (int)(*tempi) + (int)(*rhsi);
+			if (sum > 255)
+			{
+				sum = 255;
+			}
+			tempchar[count] = (unsigned char)(sum);
+			++count;
+			++tempi;
+			++rhsi;
+		}
 
+		temp.data = std::move(tempchar);
+
+		return temp;
+	}
+	else
+	{
+		std::cout << "ERROR: Not same sizes";
+		return *this;
+	}
+}
+
+Image Image::operator - (Image rhs)
+{
+	if (checkSizes(rhs))
+	{
+		Image temp(*this);
+		std::unique_ptr<unsigned char[]> tempchar (new unsigned char[rhs.height * rhs.width]);
+		auto tempi = temp.begin();
+		auto rhsi = rhs.begin();
+		int count = 0;
+		while (tempi != temp.end())
+		{
+			int sum = (int)(*tempi) - (int)(*rhsi);
+			if (sum < 0)
+			{
+				sum = 0;
+			}
+			tempchar[count] = (unsigned char)(sum);
+			++count;
+			++tempi;
+			++rhsi;
+		}
+
+		temp.data = std::move(tempchar);
+
+		return temp;
+	}
+	else
+	{
+		std::cout << "ERROR: Not same sizes";
+		return *this;
+	}
 }
 
 Image Image::operator ! ()
@@ -133,12 +226,12 @@ Image Image::operator * (int rhs)
 
 }
 
-Image::Iterator Image::begin()
+Image::Iterator Image::begin() const
 {
 	return Image::Iterator(data.get());
 }
 
-Image::Iterator Image::end()
+Image::Iterator Image::end() const
 {
 	Image::Iterator temp(data.get());
 	temp.end(width * height);
