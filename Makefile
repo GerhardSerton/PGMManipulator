@@ -18,3 +18,9 @@ clean:
 
 debug: Image.o Driver.o
 	$(CC) -g Driver.cpp Image.cpp -o debug
+
+catch: Image.o CatchTests.o
+	$(CC) -o CatchTests CatchTests.o Image.o
+
+CatchTests.o: CatchTests.cpp
+	$(CC) -c -o CatchTests.o CatchTests.cpp

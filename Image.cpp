@@ -213,17 +213,80 @@ Image Image::operator - (Image rhs)
 
 Image Image::operator ! ()
 {
+		Image temp(*this);
+		std::unique_ptr<unsigned char[]> tempchar (new unsigned char[height * width]);
+		int j = 0;
+		for (auto tempi = temp.begin(); tempi != temp.end(); ++tempi)
+		{
+			int result = 255 - (int)(*tempi);
+			if (result < 0)
+			{
+				result = 0;
+			}
 
+			tempchar[j] = (unsigned char)(result);
+			++j;
+		}
+
+		temp.data = std::move(tempchar);
+		return temp;
 }
 
 Image Image::operator / (Image rhs)
 {
+	if (checkSizes(rhs))
+	{
+		Image temp(*this);
+		std::unique_ptr<unsigned char[]> tempchar (new unsigned char[rhs.height * rhs.width]);
+		auto tempi = temp.begin();
+		auto rhsi = rhs.begin();
+		int count = 0;
+		while (tempi != temp.end())
+		{
+			if ((int)(*rhsi) == 255)
+			{
+				tempchar[count] = *tempi;
+			}
+			else
+			{
+				tempchar[count] = (unsigned char) 0;
+			}
+			++count;
+			++tempi;
+			++rhsi;
+		}
 
+		temp.data = std::move(tempchar);
+
+		return temp;
+	}
+	else
+	{
+		std::cout << "ERROR: Not same sizes";
+		return *this;
+	}
 }
 
 Image Image::operator * (int rhs)
 {
+	Image temp(*this);
+	std::unique_ptr<unsigned char[]> tempchar (new unsigned char[height * width]);
+	int j = 0;
+	for (auto tempi = temp.begin(); tempi != temp.end(); ++tempi)
+	{
+		if ((int)(*tempi) > rhs)
+		{
+			tempchar[j] = (unsigned char)(255);
+		}
+		else
+		{
+			tempchar[j] = (unsigned char)(0);
+		}
+		++j;
+	}
 
+	temp.data = std::move(tempchar);
+	return temp;
 }
 
 Image::Iterator Image::begin() const

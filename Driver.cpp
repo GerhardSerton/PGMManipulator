@@ -34,7 +34,8 @@ int main (int argc, char*argv[])
 		string i1 = argv[2];
 		string outputname = argv[3];
 		Image image1(i1, outputname);
-		//image1 = !image1;
+		image1 = !image1;
+		image1.save();
 	}
 	else if (command == "-l")
 	{
@@ -44,7 +45,8 @@ int main (int argc, char*argv[])
 		string outputname = argv[4];
 		Image image1(i1, outputname);
 		Image image2(i2, outputname);
-		//image1 = image1/image2;
+		image1 = image1/image2;
+		image1.save();
 	}
 	else if (command == "-t")
 	{
@@ -53,7 +55,8 @@ int main (int argc, char*argv[])
 		int i2 = stoi(argv[3]);
 		string outputname = argv[4];
 		Image image1(i1, outputname);
-		//image1 = image1 * i2;
+		image1 = image1 * i2;
+		image1.save();
 	}
 	//Test command, just loads the file in
 	else
