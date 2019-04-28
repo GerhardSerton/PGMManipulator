@@ -26,20 +26,45 @@ TEST_CASE("Iterator Tests")
   REQUIRE(j == 512*512);
 }
 
-TEST_CASE("Copy Constructor")
+TEST_CASE("Copy Semantics")
 {
   std::string filename = "Lenna_standard.pgm";
   std::string output = "catchtest.pgm";
   Image testImage(filename, output);
+  Image testImage2 = testImage;
 
   Image copy (testImage);
   auto testi = testImage.begin();
+  auto test2i = testImage2.begin();
   auto copyi = copy.begin();
   while (copyi != copy.end())
   {
     REQUIRE(*testi == *copyi);
+    REQUIRE(*testi == *test2i);
     ++testi;
     ++copyi;
+    ++test2i;
+  }
+}
+
+TEST_CASE("Move Semantics")
+{
+  std::string filename = "Lenna_standard.pgm";
+  std::string output = "catchtest.pgm";
+  Image testImage(Image(filename, output));
+  Image testImage2 = Image(filename, output);
+  Image control(filename, output);
+
+  auto testi = testImage.begin();
+  auto test2i = testImage2.begin();
+  auto controli = control.begin();
+  while (testi != testImage.end())
+  {
+    REQUIRE(*testi == *controli);
+    REQUIRE(*test2i == *controli);
+    ++testi;
+    ++controli;
+    ++test2i;
   }
 }
 
